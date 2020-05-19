@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src=" https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <title>Greetings</title>
+    </head>
+    <body>
+        <div id = 'app'></div>
+        <!-- Babel tells the browser that this is javascript code and translate it intoregular javascript code -->
+        <script type = 'text/babel'>
+
+            class App extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        tasks:[],
+                        errors:{},
+                        text:'',
+                        date:"",
+                        checkedCount:0
+                    }
+                }
+                render() {
+                    return(
+                        <div>
+                            <h1>Tasks</h1>
+                            <ul>
+                                {this.state.tasks.map((task, i) =>
+                                    <li key = {i}>
+                                        <input type = "checkbox" checked = {this.state.tasks[i]['check']} onChange = {(e) => this.onChecked(e,i)}/>
+                                        {task['name'] +" "+ task['date']}
+                                        <button onClick = {(e) => this.deleteTask(e,i)}>DeleteTask</button>
+                                    </li>
+                                )}
+                            </ul>
+
+                            <div>Number of checked tasks are: {this.state.checkedCount}</div>
+                            <p>{this.state.errors['name']} {this.state.errors['date']}</p>
+                            <input value = {this.state.text}  onChange = {this.updateTask} ></input>
+                            <span> Due Date : </span>
+                            <input type = "date" value = {this.state.date} onChange = {this.updateDate} />
+                            <button onClick = {()=>this.addTask()}>Add Task</button>
+                        </div>
+                    );
+                }
+                updateTask = (event) => {
+                    this.setState({
+                        text:event.target.value
+                    })
+
+                }
+                updateDate = (event) => {
+                    console.log(event.target.value)
+                    this.setState({
+                        date:event.target.value
+                    })
+
+                }
+
+                addTask = () => {
+                    this.setState(state=>{
+                        const task = {}
+                        if(state.text == '') {
+                            state.errors['date'] = ''
+                            state.errors['name'] = "please enter task name"
+                            return {
+                                errors:state.errors
+                            }
+                        }
+                        if(state.date == ''){
+                            state.errors['name'] =''
+                            state.errors['date'] = 'please select date'
+                            return{
+                                errors:state.errors
+                            }
+                        }
+                        task['name'] = state.text
+                        task['date'] = state.date
+                        task['check'] = false
+
+                        return {
+                            tasks:[...state.tasks,task],
+                            text:'',
+                            date:"",
+                            errors:{}
+                        }
+                    })
+                }
+                deleteTask = (e,i) => {
+                    this.setState(state=>{
+                        let flag = 0
+                        const taskscopy = [...this.state.tasks];
+                        let count = state.checkedCount;
+                        const task = taskscopy[i]
+                        console.log(task)
+                        if(task['check'] == true) {
+                            task['check'] = false;
+                            flag = 1
+                        }
+                        taskscopy[i] = task;
+                        console.log(task)
+                        taskscopy.splice(i,1);
+                        count = count - flag;
+                        return{
+                            tasks:taskscopy,
+                            checkedCount:count,
+                        }
+                    })
+                }
+                onChecked = (e,i) => {
+                    console.log(e.target.checked)
+                    let value = e.target.checked;
+                    this.setState(state =>{
+                        let flag = 0;
+                        const taskscopy = [...this.state.tasks];
+                        let count = this.state.checkedCount;
+                        let task = taskscopy[i]
+                        console.log(task)
+                        if(task['check'] == false) {
+                            task['check'] = value;
+                            flag = 1;
+                        }else {
+                            task['check'] = value;
+                            flag = -1;
+                        }
+                        console.log(task)
+                        taskscopy[i] = task;
+                        count = count + flag;
+                        return {
+                            checkedCount:count,
+                            tasks:taskscopy
+                        }
+                    })
+                }
+            }
+
+        ReactDOM.render(<App/>,document.querySelector('#app'));
+        </script>
+
+    </body>
+</html>
